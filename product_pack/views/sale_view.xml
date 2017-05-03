@@ -28,7 +28,7 @@
                 </header>
                 <sheet>
                     <field name="pack_type" invisible="1"/>
-                    <div attrs="{'invisible':[('pack_type', '!=', 'none_detailed_assited_price')]}">
+                    <div> <!-- attrs="{'invisible':[('pack_type', '!=', 'none_detailed_assited_price')]}" -->
                         <div name="product_pack">
                             <label for="pack_line_ids"/>
                             <field name="pack_line_ids"/>
@@ -58,7 +58,7 @@
             <!-- button to open line form -->
             <xpath expr="//field[@name='order_line']/tree//field[@name='price_subtotal']" position="after">
                 <field name="pack_type" invisible="1"/>
-                <button name="action_pack_detail" string="Detail" attrs="{'invisible':[('pack_type', '!=', 'none_detailed_assited_price')]}" type="object"/>
+                <button name="action_pack_detail" string="Detail" type="object"/>
             </xpath>
         </field>
     </record>

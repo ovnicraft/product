@@ -18,15 +18,15 @@
 		<field name="model">product.template</field>
 		<field name="inherit_id" ref="product.product_template_only_form_view" />
 		<field name="arch" type="xml">
-			<field name="type" position="after">
-				<field name="pack"/>
-				<field name="pack_price_type" attrs="{'invisible':[('pack', '=', False)], 'required':[('pack','=',True)]}" context="{'pack_price_type': pack_price_type}"/>
-			</field>
-			<notebook position="inside">
-				<page string="Pack" attrs="{'invisible': ['|', ('product_variant_count', '>', 1), ('pack', '=', False)]}">
-					<field name="pack_line_ids"/>
-				</page>
-			</notebook>
+		    <field name="type" position="after">
+			<field name="pack"/>
+			<field name="pack_price_type" attrs="{'invisible':[('pack', '=', False)], 'required':[('pack','=',True)]}" context="{'pack_price_type': pack_price_type}"/>
+		    </field>
+		    <notebook position="inside">
+			<page string="Pack" attrs="{'invisible': ['|', ('product_variant_count', '>', 1), ('pack', '=', False)]}">
+			    <field name="pack_line_ids"/>
+			</page>
+		    </notebook>
 		</field>
 	</record>
 
@@ -53,13 +53,13 @@
 		<field name="model">product.pack.line</field>
 		<field name="type">form</field>
 		<field name="arch" type="xml">
-			<form string="Pack Product Line">
-				<group>
-					<field name="product_id"/>
-					<field name="quantity"/>
-					<field name="discount" groups="sale.group_discount_per_so_line" invisible="context.get('pack_price_type') == 'fixed_price'"/>
-				</group>
-			</form>
+		    <form string="Pack Product Line">
+			<group>
+			    <field name="product_id"/>
+			    <field name="quantity"/>
+			    <field name="discount" groups="sale.group_discount_per_so_line" invisible="context.get('pack_price_type') == 'fixed_price'"/>
+			</group>
+		    </form>
 		</field>
 	</record>
 
@@ -68,11 +68,49 @@
 		<field name="model">product.pack.line</field>
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
-			<tree string="Pack Product Lines" editable="bottom">
-				<field name="product_id"/>
-				<field name="quantity"/>
-				<field name="discount" groups="sale.group_discount_per_so_line" invisible="context.get('pack_price_type') == 'fixed_price'"/>
+		    <tree string="Pack Product Lines" editable="bottom">
+			<field name="product_id"/>
+			<field name="quantity"/>
+			<field name="discount" invisible="context.get('pack_price_type') == 'fixed_price'"/>
 			</tree>
 		</field>
 	</record>
+
+	<record model="ir.ui.view" id="product_pack_select_form">
+	    <field name="name">product.pack.select.form</field>
+	    <field name="model">product.pack.select</field>
+	    <field name="arch" type="xml">
+		<form>
+                    <sheet>
+                        <group>
+		            <field name="product_id" domain="[('pack', '=', True)]"/>
+                        </group>
+                        <footer>
+                            <button special="cancel" string="Cerrar" class="oe_link"/>
+                            <button name="add_pack" type="object" string="Agregar Combo" class="oe_stat_button" icon="fa-plus"/>
+                        </footer>
+                    </sheet>
+		</form>
+	    </field>
+	</record>
+
+        <record id="action_add_pack" model="ir.actions.act_window">
+            <field name="name">Agregar combo</field>
+            <field name="res_model">product.pack.select</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+    <record model="ir.ui.view" id="view_order_stock_form">
+        <field name="name">sale.order.form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- button to open line form -->
+            <xpath expr="//field[@name='order_line']" position="before">
+                <button name="%(action_add_pack)d" string="Agregar Combo" type="action" class="oe_stat_button" icon="fa-plus"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>

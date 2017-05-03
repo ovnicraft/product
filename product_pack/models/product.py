@@ -15,15 +15,17 @@ class ProductProduct(models.Model):
     def _compute_quantities(self):
         # TODO: possible use super()
         res = self._compute_quantities_dict(self._context.get('lot_id'), self._context.get('owner_id'), self._context.get('package_id'), self._context.get('from_date'), self._context.get('to_date'))
+        tqty = 0
         for product in self:
             if product.pack:
                 pack_qty = [math.floor(p.product_id.qty_available / p.quantity or 1) for p in product.pack_line_ids]
-                product.qty_available = min(pack_qty)
+                product.qty_available = pack_qty and min(pack_qty) or 0
+                tqty = pack_qty and min(pack_qty) or 0
             else:
                 product.qty_available = res[product.id]['qty_available']
-                product.incoming_qty = res[product.id]['incoming_qty']
-                product.outgoing_qty = res[product.id]['outgoing_qty']
-                product.virtual_available = res[product.id]['virtual_available']
+            product.incoming_qty = res[product.id]['incoming_qty']
+            product.outgoing_qty = res[product.id]['outgoing_qty']
+            product.virtual_available = res[product.id]['virtual_available'] + tqty
 
     qty_available = fields.Float(
         compute='_compute_quantities'
@@ -153,12 +155,14 @@ class ProductTemplate(models.Model):
 
     def _compute_quantities(self):
         res = self._compute_quantities_dict()
+        tqty = 0
         for template in self:
             if template.pack:
                 pack_qty = [math.floor(p.product_id.qty_available / p.quantity or 1) for p in template.pack_line_ids]
                 template.qty_available = pack_qty and min(pack_qty) or 0
+                tqty = pack_qty and min(pack_qty) or 0
             else:
                 template.qty_available = res[template.id]['qty_available']
-                template.virtual_available = res[template.id]['virtual_available']
-                template.incoming_qty = res[template.id]['incoming_qty']
-                template.outgoing_qty = res[template.id]['outgoing_qty']
+            template.virtual_available = res[template.id]['virtual_available'] + tqty
+            template.incoming_qty = res[template.id]['incoming_qty']
+            template.outgoing_qty = res[template.id]['outgoing_qty']
